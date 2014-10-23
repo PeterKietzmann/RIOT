@@ -219,7 +219,7 @@ ifneq (, $(filter info-boards-supported info-boards-features-missing info-build,
   FEATURES_PROVIDED_BAK := $(FEATURES_PROVIDED)
 
   define board_missing_features
-    FEATURES_PROVIDED :=
+    FEATURES_PROVIDED := FEATURES_PROVIDED_BAK
     -include $${RIOTBOARD}/${1}/Makefile.features
 
     FEATURES_MISSING := $$(filter-out $$(FEATURES_PROVIDED), $$(FEATURES_REQUIRED))
