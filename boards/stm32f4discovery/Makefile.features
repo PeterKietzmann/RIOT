@@ -1,2 +1,2 @@
-FEATURES_PROVIDED = periph_gpio periph_spi periph_pwm periph_random transceiver
+FEATURES_PROVIDED = periph_gpio periph_spi periph_pwm periph_random
 
