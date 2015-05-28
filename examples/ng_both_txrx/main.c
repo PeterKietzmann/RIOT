@@ -292,11 +292,8 @@ int main(void)
         // send packet (NG_NETREG_DEMUX_CTX_ALL: no limitations about the finding)
         sendto = ng_netreg_lookup(NG_NETTYPE_UDP, NG_NETREG_DEMUX_CTX_ALL);
 
-        ng_pktbuf_hold(ip, ng_netreg_num(NG_NETTYPE_UDP,
-                                     NG_NETREG_DEMUX_CTX_ALL) - 1);
         ng_netapi_send(sendto->pid, ip);
 
-        ng_pktbuf_release(ip);
         iter++;
 
         vtimer_usleep(2000*1000);
