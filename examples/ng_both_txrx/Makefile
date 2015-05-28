@@ -26,19 +26,11 @@ export ATRF_SLEEP ?= GPIO_14
 USEMODULE += vtimer
 USEMODULE += ps
 
-USEMODULE += auto_init_ng_netif
-USEMODULE += ng_at86rf231
 USEMODULE += ng_netif
-USEMODULE += ng_netapi
-USEMODULE += ng_netreg
-USEMODULE += ng_pktbuf
-USEMODULE += ng_netif_hdr
-USEMODULE += ng_netbase
-USEMODULE += ng_nomac
-USEMODULE += ng_ipv6
+USEMODULE += auto_init_ng_netif
+USEMODULE += ng_ipv6_default
 USEMODULE += ng_udp
 USEMODULE += ng_pktdump
-USEMODULE += ng_ndp
 
 ifneq (,$(ATRF_SPI))
   CFLAGS += -DATRF_SPI=$(ATRF_SPI)
