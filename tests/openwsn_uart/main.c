@@ -11,6 +11,11 @@ TeraTerm):
 - when you enter a character on the client, the board echoes it back (i.e. you
   see the character on the terminal client) and the "ERROR" led blinks.
 
+This code is mostly copied from openwsn-fw/projects/common/01bsp_uart/main.c
+
+
+\author Stefan Mehner <stefan.mehner@b-tu.de>, July 2017
+\author Peter Kietzmann  <peter.kietzmann@haw-hamburg.de>, July 2017
 \author Thomas Watteyne <watteyne@eecs.berkeley.edu>, February 2012
 */
 
@@ -62,18 +67,13 @@ int main(void) {
    uart_enableInterrupts();
 
    puts("send");
-   while(1) {
 
-      // wait for timer to elapse
-      while (app_vars.uartSendNow==0);
-      app_vars.uartSendNow = 0;
-
-      // send string over UART
-      app_vars.uartDone              = 0;
-      app_vars.uart_lastTxByteIndex  = 0;
-      uart_writeByte(stringToSend[app_vars.uart_lastTxByteIndex]);
-      while(app_vars.uartDone==0);
+   /* send stringToSend byte-wise to the uart interfce*/
+   for (int i=0; i< sizeof(stringToSend); i++)
+   {
+     uart_writeByte(stringToSend[i]);
    }
+
 }
 
 //=========================== callbacks =======================================
