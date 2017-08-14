@@ -1,0 +1,101 @@
+/**
+\brief This is a program which shows how to use the bsp modules for the board
+       and UART.
+
+\note: Since the bsp modules for different platforms have the same declaration,
+       you can use this project with any platform.
+
+Load this program on your board. Open a serial terminal client (e.g. PuTTY or
+TeraTerm):
+- You will read "Hello World!" printed over and over on your terminal client.
+- when you enter a character on the client, the board echoes it back (i.e. you
+  see the character on the terminal client) and the "ERROR" led blinks.
+
+This code is mostly copied from openwsn-fw/projects/common/01bsp_uart/main.c
+
+
+\author Stefan Mehner <stefan.mehner@b-tu.de>, July 2017
+\author Peter Kietzmann  <peter.kietzmann@haw-hamburg.de>, July 2017
+\author Thomas Watteyne <watteyne@eecs.berkeley.edu>, February 2012
+*/
+
+#include "stdint.h"
+#include "stdio.h"
+#include "string.h"
+#include "board_ow.h"
+#include "uart_ow.h"
+
+//=========================== defines =========================================
+
+// #define BSP_TIMER_PERIOD     0xffff // 0xffff@32kHz = 2s
+uint8_t stringToSend[]       = "Hello, World!\r\n";
+
+//=========================== variables =======================================
+
+typedef struct {
+              uint8_t uart_lastTxByteIndex;
+   volatile   uint8_t uartDone;
+   volatile   uint8_t uartSendNow;
+} app_vars_t;
+
+app_vars_t app_vars;
+
+//=========================== prototypes ======================================
+
+void cb_compare(void);
+void cb_uartTxDone(void);
+void cb_uartRxCb(void);
+
+//=========================== main ============================================
+
+/**
+\brief The program starts executing here.
+*/
+int main(void) {
+
+   // clear local variable
+   memset(&app_vars,0,sizeof(app_vars_t));
+
+   app_vars.uartSendNow = 1;
+
+   // initialize the board
+   board_init_ow();
+   uart_init_ow();
+
+   // setup UART
+   uart_setCallbacks(cb_uartTxDone,cb_uartRxCb);
+   uart_enableInterrupts();
+
+   puts("send");
+
+   /* send stringToSend byte-wise to the uart interfce*/
+   for (int i=0; i< sizeof(stringToSend); i++)
+   {
+     uart_writeByte(stringToSend[i]);
+   }
+
+}
+
+//=========================== callbacks =======================================
+
+void cb_uartTxDone(void) {
+   app_vars.uart_lastTxByteIndex++;
+   if (app_vars.uart_lastTxByteIndex<sizeof(stringToSend)) {
+      uart_writeByte(stringToSend[app_vars.uart_lastTxByteIndex]);
+   } else {
+      app_vars.uartDone = 1;
+   }
+}
+
+void cb_uartRxCb(void) {
+   uint8_t byte;
+
+   // toggle LED
+   //leds_error_toggle();
+
+   // read received byte
+   byte = uart_readByte();
+
+   // echo that byte over serial
+   uart_writeByte(byte);
+}
