@@ -30,36 +30,36 @@ int main(void) {uint8_t i;
       puts("Blink from beginning :-)");
       // error LED functions
       puts("leds_error_blink");
-      leds_error_blink();       xtimer_sleep(1);
-      leds_error_off();         xtimer_sleep(1);
+      leds_error_blink();       xtimer_usleep(50000);
+      leds_error_off();         xtimer_usleep(50000);
       
       // radio LED functions
       puts("leds_radio_toggle");
-      leds_radio_toggle();      xtimer_sleep(1);
-      leds_radio_off();         xtimer_sleep(1);
+      leds_radio_toggle();      xtimer_usleep(50000);
+      leds_radio_off();         xtimer_usleep(50000);
       
       // sync LED functions
       puts("leds_sync_toggle");
-      leds_sync_toggle();       xtimer_sleep(1);
-      leds_sync_off();          xtimer_sleep(1);
+      leds_sync_toggle();       xtimer_usleep(50000);
+      leds_sync_off();          xtimer_usleep(50000);
       
       // debug LED functions
       puts("leds_debug_toggle");
-      leds_debug_toggle();      xtimer_sleep(1);
-      leds_debug_off();         xtimer_sleep(1);
+      leds_debug_toggle();      xtimer_usleep(50000);
+      leds_debug_off();         xtimer_usleep(50000);
       
       // all LED functions
       puts("leds_all_toggle");
-      leds_all_off();           xtimer_sleep(1);
-      leds_all_on();            xtimer_sleep(1);
-      leds_all_off();           xtimer_sleep(1);
-      leds_all_toggle();        xtimer_sleep(1);
+      leds_all_off();           xtimer_usleep(50000);
+      leds_all_on();            xtimer_usleep(50000);
+      leds_all_off();           xtimer_usleep(50000);
+      leds_all_toggle();        xtimer_usleep(50000);
       
       // LED increment function
-      leds_all_off();           xtimer_sleep(1);
+      leds_all_off();           xtimer_usleep(50000);
       puts("leds_circular_shift");
       for (i=0;i<9;i++) {
-         leds_circular_shift(); xtimer_sleep(1);
+         leds_circular_shift(); xtimer_usleep(50000);
       }
    }
 

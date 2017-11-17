@@ -31,40 +31,40 @@ int main(void) {
    leds_error_on();
 
    puts("frame pins");
-   debugpins_frame_set();    xtimer_sleep(1);
-   debugpins_frame_toggle(); xtimer_sleep(1);
-   debugpins_frame_toggle(); xtimer_sleep(1);
-   debugpins_frame_clr();    xtimer_sleep(1);
+   debugpins_frame_set();    xtimer_usleep(50000);
+   debugpins_frame_toggle(); xtimer_usleep(50000);
+   debugpins_frame_toggle(); xtimer_usleep(50000);
+   debugpins_frame_clr();    xtimer_usleep(50000);
 
    puts("slot pins");
-   debugpins_slot_set();     xtimer_sleep(1);
-   debugpins_slot_toggle();  xtimer_sleep(1);
-   debugpins_slot_toggle();  xtimer_sleep(1);
-   debugpins_slot_clr();     xtimer_sleep(1);
+   debugpins_slot_set();     xtimer_usleep(50000);
+   debugpins_slot_toggle();  xtimer_usleep(50000);
+   debugpins_slot_toggle();  xtimer_usleep(50000);
+   debugpins_slot_clr();     xtimer_usleep(50000);
 
    puts("fsm pins");
-   debugpins_fsm_set();      xtimer_sleep(1);
-   debugpins_fsm_toggle();   xtimer_sleep(1);
-   debugpins_fsm_toggle();   xtimer_sleep(1);
-   debugpins_fsm_clr();      xtimer_sleep(1);
+   debugpins_fsm_set();      xtimer_usleep(50000);
+   debugpins_fsm_toggle();   xtimer_usleep(50000);
+   debugpins_fsm_toggle();   xtimer_usleep(50000);
+   debugpins_fsm_clr();      xtimer_usleep(50000);
 
    puts("task pins");
-   debugpins_task_set();     xtimer_sleep(1);
-   debugpins_task_toggle();  xtimer_sleep(1);
-   debugpins_task_toggle();  xtimer_sleep(1);
-   debugpins_task_clr();     xtimer_sleep(1);
+   debugpins_task_set();     xtimer_usleep(50000);
+   debugpins_task_toggle();  xtimer_usleep(50000);
+   debugpins_task_toggle();  xtimer_usleep(50000);
+   debugpins_task_clr();     xtimer_usleep(50000);
 
    puts("isr pins");
-   debugpins_isr_set();      xtimer_sleep(1);
-   debugpins_isr_toggle();   xtimer_sleep(1);
-   debugpins_isr_toggle();   xtimer_sleep(1);
-   debugpins_isr_clr();      xtimer_sleep(1);
+   debugpins_isr_set();      xtimer_usleep(50000);
+   debugpins_isr_toggle();   xtimer_usleep(50000);
+   debugpins_isr_toggle();   xtimer_usleep(50000);
+   debugpins_isr_clr();      xtimer_usleep(50000);
 
    puts("radio pins");
-   debugpins_radio_set();    xtimer_sleep(1);
-   debugpins_radio_toggle(); xtimer_sleep(1);
-   debugpins_radio_toggle(); xtimer_sleep(1);
-   debugpins_radio_clr();    xtimer_sleep(1);
+   debugpins_radio_set();    xtimer_usleep(50000);
+   debugpins_radio_toggle(); xtimer_usleep(50000);
+   debugpins_radio_toggle(); xtimer_usleep(50000);
+   debugpins_radio_clr();    xtimer_usleep(50000);
    
    board_reset();
    
