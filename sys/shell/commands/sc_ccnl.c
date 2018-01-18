@@ -266,3 +266,11 @@ int _ccnl_fib(int argc, char **argv)
     }
     return 0;
 }
+
+int _ccnl_cs_dump(int argc, char **argv)
+{
+    (void)argc;
+    (void)argv;
+    ccnl_cs_dump(&ccnl_relay);
+    return 0;
+}
