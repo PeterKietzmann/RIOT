@@ -69,6 +69,8 @@ static unsigned char _out[CCNL_MAX_PACKET_SIZE];
 static int my_macid = -1;
 static char my_macid_str[4];
 
+extern unsigned int netdev_evt_tx_noack;
+
 #define MACMAPSZ (367)
 static const char macmap[MACMAPSZ][24] = {
 "03:68:40:36:32:48:33:d6",
@@ -617,12 +619,21 @@ static int _publish(int argc, char **argv)
     return 0;
 }
 
+static int _l2_noack(int argc, char **argv)
+{
+    (void)argc;
+    (void)argv;
+    printf("netdev_evt_tx_noack: %u\n", netdev_evt_tx_noack);
+    return 0;
+}
+
 static const shell_command_t shell_commands[] = {
     { "hr", "start HoPP root", _root },
     { "hp", "publish data", _publish },
     { "he", "HoPP end", _hopp_end },
     { "pktcnt_start", "start pktcnt module", _pktcnt_start },
     { "req_start", "start periodic content requests", _req_start },
+    { "l2_noack", "prints number of un-ACKed l2 packets", _l2_noack },
     { NULL, NULL, NULL }
 };
 
@@ -663,6 +674,8 @@ int main(void)
     gnrc_netapi_get(netif->pid, NETOPT_ADDRESS, 0, my_hwaddr, sizeof(my_hwaddr));
 #else
     gnrc_netapi_get(netif->pid, NETOPT_ADDRESS_LONG, 0, my_hwaddr, sizeof(my_hwaddr));
+    bool set = true;
+    gnrc_netapi_set(netif->pid, NETOPT_TX_END_IRQ, 0, &set, sizeof(set));
 #endif
     gnrc_netif_addr_to_str(my_hwaddr, sizeof(my_hwaddr), my_hwaddr_str);
 

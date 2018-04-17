@@ -44,6 +44,8 @@
 
 #define _MAX_MHR_OVERHEAD   (25)
 
+unsigned int netdev_evt_tx_noack = 0;
+
 static int _send(netdev_t *netdev, const iolist_t *iolist);
 static int _recv(netdev_t *netdev, void *buf, size_t len, void *info);
 static int _init(netdev_t *netdev);
@@ -651,6 +653,7 @@ static void _isr(netdev_t *netdev)
                         break;
 #endif
                     case AT86RF2XX_TRX_STATE__TRAC_NO_ACK:
+                        netdev_evt_tx_noack++;
                         netdev->event_callback(netdev, NETDEV_EVENT_TX_NOACK);
                         DEBUG("[at86rf2xx] TX NO_ACK\n");
                         break;
