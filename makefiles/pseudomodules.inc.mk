@@ -64,6 +64,7 @@ PSEUDOMODULES += pktqueue
 PSEUDOMODULES += printf_float
 PSEUDOMODULES += prng
 PSEUDOMODULES += prng_%
+PSEUDOMODULES += puf_sram
 PSEUDOMODULES += rdcli_simple_standalone
 PSEUDOMODULES += saul_adc
 PSEUDOMODULES += saul_default

@@ -30,9 +30,13 @@
 void auto_init_random(void)
 {
     uint32_t seed;
-#ifdef MODULE_PERIPH_CPUID
+#ifdef MODULE_PUF_SRAM
+    extern uint32_t global_puf_seed;
+    seed = global_puf_seed;
+#endif
+#if !defined (MODULE_PUF_SRAM) && defined (MODULE_PERIPH_CPUID)
     luid_get(&seed, 4);
-#else
+#elif !defined (MODULE_PUF_SRAM) && !defined (MODULE_PERIPH_CPUID)
     LOG_WARNING("random: NO SEED AVAILABLE!\n");
     seed = RANDOM_SEED_DEFAULT;
 #endif
