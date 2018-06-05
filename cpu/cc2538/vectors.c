@@ -22,6 +22,24 @@
 #include "board.h"
 #include "vectors_cortexm.h"
 
+#ifdef MODULE_PUF_SRAM
+#include "hashes.h"
+
+/* 1kB SRAM considered for seeding */
+#define SEED_RAM_LEN     (1024 / sizeof(uint32_t))
+
+/*  Allocation of the PUF seed variable */
+__attribute__((used,section(".puf_stack"))) uint32_t global_puf_seed;
+
+/* SRAM memory marker defined in the linker script */
+extern uint8_t _sram;
+
+void pre_startup(void)
+{
+    global_puf_seed = dek_hash(&_sram + ISR_STACKSIZE, SEED_RAM_LEN);
+}
+#endif
+
 /* define a local dummy handler as it needs to be in the same compilation unit
  * as the alias definition */
 void dummy_handler(void) {
