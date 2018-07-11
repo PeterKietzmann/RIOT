@@ -1,6 +1,7 @@
 # Set the common memory addresses for stm32 MCU family
 ROM_START_ADDR ?= 0x08000000
 RAM_START_ADDR ?= 0x20000000
+RAM2_START_ADDR ?= 0x10000000
 
 # The next block takes care of setting the rigth lengths of RAM and ROM
 # for the stm32 family. Most of the CPUs should have been taken into
