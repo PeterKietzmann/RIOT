@@ -56,6 +56,7 @@ uint32_t stop_data=0;
 uint32_t delta_conn_start=0;
 uint32_t delta_conn_end=0;
 uint32_t delta_encrypt=0;
+uint32_t delta_app_to_app=0;
 
 static int dtls_connected = 0; /* This is handled by Tinydtls callbacks */
 
@@ -253,6 +254,7 @@ static int _read_from_peer_handler(struct dtls_context_t *ctx,
 
     (void)data;
     (void)len;
+    delta_app_to_app = xtimer_now_usec() - start_data;
 /*
     printf("Client: got DTLS Data App -- ");
     for (size_t i = 0; i < len; i++)
@@ -520,8 +522,8 @@ int udp_client_cmd(int argc, char **argv)
         client_send(argv[1], testbuf);
 
         xtimer_sleep(1);
-        // format client=0, data length, connection setup time, data encription time, connection close time
-        printf("0,%u,%"PRIu32",%"PRIu32",%"PRIu32"\n", len, delta_encrypt, delta_conn_start, delta_conn_end);
+        // format client=0, data length, connection setup time, data encription time, connection close time, app-to-app time
+        printf("0,%u,%"PRIu32",%"PRIu32",%"PRIu32",%"PRIu32"\n", len, delta_encrypt, delta_conn_start, delta_conn_end, delta_app_to_app);
     }
 
 

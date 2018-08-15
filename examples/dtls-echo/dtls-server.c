@@ -146,9 +146,12 @@ static int _read_from_peer_handler(struct dtls_context_t *ctx,
     verify_stop = xtimer_now_usec();
     delta_decrypt = verify_stop-verify_start;
 
-    // format server=1, data length, DUMMY, data decryption time, dummy
-    printf("1,%u,0,%"PRIu32",0\n", len, delta_decrypt);
+    uint8_t testbuf[41]; // checked len in pcap
+    memset(testbuf, 1, sizeof(testbuf));
+    testbuf[40] = '\0';
 
+    // format server=1, data length, DUMMY, data decryption time, dummy, dummy
+    printf("1,%u,0,%"PRIu32",0,0\n", sizeof(testbuf), delta_decrypt);
 /*
     size_t i;
     printf("\nServer: got DTLS Data App: --- ");
@@ -158,8 +161,8 @@ static int _read_from_peer_handler(struct dtls_context_t *ctx,
     puts(" ---\t(echo!)");*/
 
     /* echo back the application data rcvd. */
-    //return dtls_write(ctx, session, data, len);
-    return 0;
+    return dtls_write(ctx, session, testbuf, sizeof(testbuf));
+    //return 0;
 }
 
 /* Handles the DTLS communication with the other peer. */
