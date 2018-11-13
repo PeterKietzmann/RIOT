@@ -25,7 +25,12 @@ int main(void)
 {
     puts("Start: Test random number generator");
 
-    printf("Success: Data for puf_sram_seed: [0x%08" PRIX32 "]", puf_sram_seed);
+    printf("Success: [0x%08" PRIX32 " ", puf_sram_seed);
+    printf("0x");
+    for(int i=0; i<20; i++){
+        printf("%02x", puf_sram_seed_160[i]);
+    }
+    puts("]");
 
     puts("End: Test finished");
     return 0;
