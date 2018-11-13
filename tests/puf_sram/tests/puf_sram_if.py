@@ -46,7 +46,8 @@ class PufSram:
         seeds1 = list()
         seeds2 = list()
         for i in range(0, n):
-            self.repower(off_time)
+            if (off_time):
+                self.repower(off_time)
             data = self.read_data()
             seeds1.append(data[0])
             seeds2.append(data[1])

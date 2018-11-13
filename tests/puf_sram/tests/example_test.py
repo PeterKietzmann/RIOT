@@ -35,7 +35,7 @@ def min_erntropy(all_meas):
 def main_func():
     puf_sram = puf_sram_if.PufSram()
     time_start = time.time()
-    data = puf_sram.get_seed_list(n=10000, off_time=1, allow_print=True, write_logfiles=True)
+    data = puf_sram.get_seed_list(n=500, off_time=0, allow_print=True, write_logfiles=True)
     time_end = time.time()
 
     # evaluate random seeds
