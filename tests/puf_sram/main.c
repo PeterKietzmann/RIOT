@@ -20,6 +20,11 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include "puf_sram.h"
+#include "periph/pm.h"
+#include "periph/rtc.h"
+
+#define REBOOT_TIME_SEC     (1)
+
 
 int main(void)
 {
@@ -33,5 +38,13 @@ int main(void)
     puts("]");
 
     puts("End: Test finished");
+
+    struct tm time;
+    rtc_get_time(&time);
+    time.tm_sec += REBOOT_TIME_SEC;
+    mktime(&time);
+    rtc_set_alarm(&time, NULL, NULL);
+    pm_set(0);
+
     return 0;
 }
