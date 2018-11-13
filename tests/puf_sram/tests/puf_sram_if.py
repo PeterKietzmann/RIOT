@@ -56,8 +56,8 @@ class PufSram:
                 print('seed1 %i' % seeds1[-1])
                 print('seed2 %i' % seeds2[-1])
             if (write_logfiles):
-                file_seed1 = open("seed1_32b.dat", 'a')
-                file_seed2 = open("seed2_160b.dat", 'a')
+                file_seed1 = open("seed1_LPM_32b.dat", 'a')
+                file_seed2 = open("seed2_LPM_160b.dat", 'a')
                 file_seed1.write(str(format(seeds1[-1], '0>32b'))+'\n')
                 file_seed2.write(str(format(seeds2[-1], '0>160b'))+'\n')
                 file_seed1.close()
