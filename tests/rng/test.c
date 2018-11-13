@@ -91,7 +91,7 @@ static inline uint32_t test_get_uint32(void)
     else if (source == RNG_HWRNG) {
         uint32_t result;
         hwrng_read(&result, 4);
-
+        xtimer_spin(xtimer_ticks_from_usec(100));
         return result;
     }
 #endif
@@ -209,7 +209,9 @@ void test_dump(uint32_t samples)
     test_init("dump");
 
     while (samples--) {
-        printf("%" PRIu32 "\n", test_get_uint32());
+        printf("%08" PRIx32 "\n", test_get_uint32());
+        if(!(samples % 1000))
+            printf("+++ remaining:%" PRIu32 "\n", samples);
     }
 }
 
