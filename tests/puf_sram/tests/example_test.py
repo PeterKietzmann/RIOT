@@ -9,6 +9,7 @@
 
 import puf_sram_if
 import numpy
+import time
 
 
 def min_erntropy(all_meas):
@@ -33,14 +34,26 @@ def min_erntropy(all_meas):
 
 def main_func():
     puf_sram = puf_sram_if.PufSram()
-    seeds = puf_sram.get_seed_list(n=500, off_time=1, allow_print=True)
-    seeds = [format(x, '0>32b') for x in seeds]
-    H_min, H_min_rel = min_erntropy(seeds)
+    time_start = time.time()
+    data = puf_sram.get_seed_list(n=10000, off_time=1, allow_print=True, write_logfiles=True)
+    time_end = time.time()
 
-    print("Number of seeds: %i       " % len(seeds))
-    print("Seed length    : %i Bit   " % len(seeds[0]))
-    print("Abs. Entropy   : %02.02f Bit   " % H_min)
-    print("Rel. Entropy   : %02.02f perc. " % H_min_rel)
+    # evaluate random seeds
+    seeds32 = [format(x, '0>32b') for x in data[0]]
+    H_min_32, H_min_rel_32 = min_erntropy(seeds32)
+
+    # evaluate IDs
+    seeds160 = [format(x, '0>160b') for x in data[1]]
+    H_min_160, H_min_rel_160 = min_erntropy(seeds160)
+
+    print("Time for experiment   : %i seconds" % (time_end-time_start))
+    print("Number of measurements: %i       " % len(seeds32))
+    print("Seed 1 length         : %i Bit   " % len(seeds32[0]))
+    print("Seed 1 abs. Entropy   : %02.02f Bit   " % H_min_32)
+    print("Seed 1 rel. Entropy   : %02.02f perc. " % H_min_rel_32)
+    print("Seed 2 length         : %i Bit   " % len(seeds160[0]))
+    print("Seed 2 abs. Entropy   : %02.02f Bit   " % H_min_160)
+    print("Seed 2 rel. Entropy   : %02.02f perc. " % H_min_rel_160)
 
 
 if __name__ == "__main__":
