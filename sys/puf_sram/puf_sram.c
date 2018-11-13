@@ -27,6 +27,9 @@ __attribute__((used,section(".puf"))) uint32_t puf_sram_state;
 /* Allocation of the memory marker */
 __attribute__((used,section(".puf"))) uint32_t puf_sram_marker;
 
+/* Allocation of the PUF seed state 160 bit */
+__attribute__((used,section(".puf"))) uint8_t puf_sram_seed_160[SHA1_DIGEST_LENGTH];
+
 void puf_sram_init(const uint8_t *ram, size_t len)
 {
     /* generates a new seed value if power cycle was detected */
@@ -36,12 +39,29 @@ void puf_sram_init(const uint8_t *ram, size_t len)
 }
 void puf_sram_generate(const uint8_t *ram, size_t len)
 {
+    /* secure seed */
+    puf_sram_160(ram, len);
+
     /* build hash from start-up pattern */
-    puf_sram_seed = dek_hash(ram, len);
+    puf_sram_seed = dek_hash(ram+len, 1024);
     /* write marker to a defined section for subsequent reset detection */
     puf_sram_marker = PUF_SRAM_MARKER;
     /* seting state to 0 means seed was generated from SRAM pattern */
     puf_sram_state = 0;
+}
+
+uint8_t *puf_sram_160(const uint8_t *ram, size_t len)
+{
+    /* seting state to 0 means seed was generated from
+     * SRAM pattern*/
+    puf_sram_state = 0;
+
+    sha1_context ctx;
+    sha1_init(&ctx);
+    sha1_update(&ctx, ram, len);
+    sha1_final(&ctx, puf_sram_seed_160);
+
+    return (uint8_t *)&puf_sram_seed_160;
 }
 
 bool puf_sram_softreset(void)

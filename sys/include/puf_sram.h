@@ -25,14 +25,15 @@
 extern "C" {
 #endif
 
-#include "hashes.h"
 #include "thread.h"
+#include "hashes.h"
+#include "hashes/sha1.h"
 
 /**
  * @brief SRAM length considered for seeding
  */
 #ifndef SEED_RAM_LEN
-#define SEED_RAM_LEN     (2048 / sizeof(uint32_t))
+#define SEED_RAM_LEN     (1024 * 5) // peter: *5 because seed length is 5 times longer than in easy seed
 #endif
 
 /**
@@ -46,6 +47,8 @@ extern "C" {
  * @brief Global seed variable, allocated in puf_sram.c
  */
 extern uint32_t puf_sram_seed;
+
+extern uint8_t puf_sram_seed_160[];
 
 /**
  * @brief Global seed state, allocated in puf_sram.c
@@ -74,6 +77,8 @@ void puf_sram_init(const uint8_t *ram, size_t len);
  * @param[in] len length of the memroy to consider
  */
 void puf_sram_generate(const uint8_t *ram, size_t len);
+
+uint8_t *puf_sram_160(const uint8_t *ram, size_t len);
 
 /**
  * @brief checks for a memory marker to determine whether memory contains old data.
