@@ -209,9 +209,10 @@ void test_dump(uint32_t samples)
     test_init("dump");
 
     while (samples--) {
-        printf("%08" PRIx32 "\n", test_get_uint32());
+        printf("%10" PRIu32 "\n", test_get_uint32());
+/*        printf("%08" PRIx32 "\n", test_get_uint32());
         if(!(samples % 1000))
-            printf("+++ remaining:%" PRIu32 "\n", samples);
+            printf("+++ remaining:%" PRIu32 "\n", samples);*/
     }
 }
 
