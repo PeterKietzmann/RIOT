@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include "random.h"
 #include "xtimer.h"
+#include "ps.h"
 #include "periph/gpio.h"
 
 #ifdef MODULE_PERIPH_HWRNG
@@ -61,9 +62,16 @@ int main(void)
 #ifdef TOGGLE_PIN_MODE
     gpio_clear(PIN0);
 #endif
+
+#ifndef MEM_USED
     while(1) {
+#endif
         uint32_t rand_val=0;
+
+#ifdef TOGGLE_PIN_MODE
         gpio_set(PIN1);
+#endif
+
 #ifdef MODULE_PERIPH_HWRNG
         hwrng_read(&rand_val, 4);
 #else
@@ -78,7 +86,30 @@ int main(void)
             printf("%c", (char)( (rand_val >> (8*i) & 0xff)) );
         }
 #endif
+
+#ifndef MEM_USED
     }
+#else
+
+        ps();
+#if MODULE_PRNG_FORTUNA
+        puts("Fortuna PRNG.\n");
+#elif MODULE_PRNG_MERSENNE
+        puts("Mersenne Twister PRNG.\n");
+#elif MODULE_PRNG_MINSTD
+        puts("Park & Miller Minimal Standard PRNG.\n");
+#elif MODULE_PRNG_MUSL_LCG
+        puts("Musl C PRNG.\n");
+#elif MODULE_PRNG_SHA1PRNG
+        puts("SHA1 PRNG.\n");
+#elif MODULE_PRNG_TINYMT32
+        puts("Tiny Mersenne Twister PRNG.\n");
+#elif MODULE_PRNG_XORSHIFT
+        puts("XOR Shift PRNG.\n");
+#else
+        puts("unknown PRNG.\n");
+#endif
+#endif
 
     return 0;
 }

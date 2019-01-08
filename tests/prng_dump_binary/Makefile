@@ -20,4 +20,11 @@ ifeq (1, $(TOGGLE_PIN_MODE))
   CFLAGS += -DTOGGLE_PIN_MODE
 endif
 
+# only include ps in mode to check used stack
+# build with MEM_USED=1
+ifeq (1, $(MEM_USED))
+  USEMODULE += ps
+  CFLAGS += -DMEM_USED
+endif
+
 include $(RIOTBASE)/Makefile.include
