@@ -25,6 +25,23 @@ and the following acronyms:
 - PRNG: Pseudo-random number generator
 - NVM: Non-volatile memory
 
+# 0. PRNG Attack Interfaces
+- Any method of distinguishing between PRNG outputs and random is an attack
+- In practice: learn, predict (backtrack) or control future outputs
+
+## w/ device access
+- inject/run malicious code
+- access internal states/keys in memory (debugger?)
+- change operating conditions
+(temperature, humidity, electric field, power supply)
+
+## w/o device access
+(analytic attack, state comprise)
+
+- follow network traffic
+- request RNG data (nonces, salts, keys, ...)
+
+
 # 1. Introduction
 The random module provides a common interface to the software PRNG. This sovereign task requires reliable entropy sources for PRNG seeding as well as mechanisms to report inadequate sources to the application programmer. In the following of this document we propose a collection of changes to improve the current situation.
 
