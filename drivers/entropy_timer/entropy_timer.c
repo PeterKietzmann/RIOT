@@ -95,6 +95,8 @@ int entropy_timer_get(uint8_t *buf, size_t len)
 {
     uint32_t rtt_now, rtt_wakeup;
 
+    _entropy_timer_init();
+
     mutex_lock(&lock);
 
     /* one byte requires two cycles as we only pick 4 bits of one measure */
