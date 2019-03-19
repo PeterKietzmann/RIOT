@@ -32,7 +32,7 @@ static entropy_timer_t e_tim;
  */
 static mutex_t lock;
 
-void entropy_timer_init(void)
+void _entropy_timer_init(void)
 {
     e_tim.count_meas = 0;
     e_tim.count_bytes = 0;

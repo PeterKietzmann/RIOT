@@ -54,14 +54,7 @@ typedef struct {
 } entropy_timer_t;
 
 /**
- * @brief   Initialize entropy module
- *
- */
-void entropy_timer_init(void);
-
-
-/**
- * @brief   Initialize entropy module
+ * @brief   BLABLA entropy module
  *
  * @param[in] buf   abcd
  * @param[in] buf   efgh
