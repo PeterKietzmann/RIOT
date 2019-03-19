@@ -38,10 +38,11 @@ class PufSram:
                 return data
         return None
 
-    def get_seed_list(self, n, off_time, allow_print):
+    def get_seed_list(self, n, off_time, allow_print, repower):
         data = list()
         for i in range(0, n):
-            self.repower(off_time)
+            if repower:
+                self.repower(off_time)
             data.append(self.read_data())
             if (allow_print):
                 print('Iteration %i/%i' % (i, n))

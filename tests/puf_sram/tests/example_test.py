@@ -16,6 +16,7 @@ DEFAULT_OFF_TIME = 1
 DEFAULT_BAUDRATE = 115200
 DEFAULT_PORT = '/dev/ttyUSB0'
 DEFAULT_INFO = True
+DEFAULT_REPOWER = True
 
 
 def min_erntropy(all_meas):
@@ -49,12 +50,14 @@ def main_func():
     p.add_argument("-b", "--baudrate", type=int, default=DEFAULT_BAUDRATE,
                    help="Baudrate of the serial port, default: %d" % DEFAULT_BAUDRATE)
     p.add_argument("-d", "--disable_output", default=DEFAULT_INFO, action='store_false',
-                   help="Disable verbose output")
+                   help="Disable verbose output, default: %d" % DEFAULT_INFO)
+    p.add_argument("-r", "--disable_repower", default=DEFAULT_INFO, action='store_false',
+                   help="Disable FTDI pin toggle to repower: %d" % DEFAULT_REPOWER)
     args = p.parse_args()
 
     puf_sram = puf_sram_if.PufSram(port=args.port, baud=args.baudrate)
     seeds = puf_sram.get_seed_list(n=args.number, off_time=args.off_time,
-                                   allow_print=args.disable_output)
+                                   allow_print=args.disable_output, repower = DEFAULT_REPOWER)
     seeds = [format(x, '0>32b') for x in seeds]
     H_min, H_min_rel = min_erntropy(seeds)
 
