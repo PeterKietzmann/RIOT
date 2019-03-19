@@ -24,18 +24,18 @@
 
 int main(void)
 {
-    puts("Start: Test entropy timer");
-    uint8_t pool[16];
+    uint8_t pool[4];
 
-    entropy_timer_init();
-    entropy_timer_get(pool, sizeof(pool));
+    for (unsigned j = 0; j < 500; j++) {
+        puts("Start: Test entropy timer");
+        entropy_timer_get(pool, sizeof(pool));
+        printf("Success: Data for puf_sram_seed: [0x");
+        for (unsigned i = 0; i < sizeof(pool); i++) {
+            printf("%02x", pool[i]);
+        }
+        puts("]");
 
-    for (unsigned i = 0; i < sizeof(pool); i++) {
-        printf("%i", pool[i]);
+        puts("End: Test finished");
     }
-    puts("");
-
-    puts("End: Test finished");
-
     return 0;
 }
