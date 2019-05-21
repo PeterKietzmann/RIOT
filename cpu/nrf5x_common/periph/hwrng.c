@@ -22,6 +22,7 @@
  * @}
  */
 
+#include "log.h"
 #include "cpu.h"
 #include "periph/hwrng.h"
 
@@ -30,6 +31,11 @@ void hwrng_init(void)
     /* nothing to do here */
 }
 
+/*
+ * The hardware peripheral is used by the SoftDevice. When the SoftDevice is
+ * enabled, it shall only be accessed through the SoftDevice API
+ */
+#ifndef MODULE_NORDIC_SOFTDEVICE_BLE
 void hwrng_read(void *buf, unsigned int num)
 {
     unsigned int count = 0;
@@ -62,3 +68,15 @@ void hwrng_read(void *buf, unsigned int num)
     NRF_RNG->POWER = 0;
 #endif
 }
+#else
+void hwrng_read(void *buf, unsigned int num)
+{
+    uint32_t ret;
+
+    ret = sd_rand_application_vector_get((uint8_t *)buf, (uint8_t)num);
+
+    if(ret != NRF_SUCCESS) {
+        LOG_WARNING("%s: Not enough bytes in RNG buffer", __FUNCTION__);
+    }
+}
+#endif /* MODULE_NORDIC_SOFTDEVICE_BLE */
