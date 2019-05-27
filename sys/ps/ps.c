@@ -62,7 +62,7 @@ void ps(void)
            "| stack  ( used) | base addr  | current     "
 #endif
 #ifdef MODULE_SCHEDSTATISTICS
-           "| runtime  | switches"
+           "| runtime_ticks | runtime  | switches"
 #endif
            "\n",
 #ifdef DEVELHELP
@@ -121,7 +121,7 @@ void ps(void)
                    " | %6i (%5i) | %10p | %10p "
 #endif
 #ifdef MODULE_SCHEDSTATISTICS
-                   " | %2d.%03d%% |  %8u"
+                   " | %lu | %2d.%03d%% |  %8u"
 #endif
                    "\n",
                    p->pid,
@@ -133,7 +133,7 @@ void ps(void)
                    , p->stack_size, stacksz, (void *)p->stack_start, (void *)p->sp
 #endif
 #ifdef MODULE_SCHEDSTATISTICS
-                   , runtime_major, runtime_minor, switches
+                   , (long unsigned)sched_pidlist[i].runtime_ticks, runtime_major, runtime_minor, switches
 #endif
                   );
         }
