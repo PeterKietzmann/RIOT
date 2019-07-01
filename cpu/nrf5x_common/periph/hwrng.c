@@ -22,9 +22,11 @@
  * @}
  */
 
-#include "log.h"
 #include "cpu.h"
 #include "periph/hwrng.h"
+#ifndef MODULE_NORDIC_SOFTDEVICE_BLE
+#include "assert.h"
+#endif
 
 void hwrng_init(void)
 {
@@ -68,15 +70,23 @@ void hwrng_read(void *buf, unsigned int num)
     NRF_RNG->POWER = 0;
 #endif
 }
+
 #else
+
 void hwrng_read(void *buf, unsigned int num)
 {
     uint32_t ret;
+    uint8_t avail;
+
+    assert(num <= 0xff);
+
+    /* this is not the most efficient, but this way we can assure that there are
+     * enough bytes of random data available */
+    do {
+        sd_rand_application_bytes_available_get(&avail);
+    } while (avail < (uint8_t)num);
 
     ret = sd_rand_application_vector_get((uint8_t *)buf, (uint8_t)num);
-
-    if(ret != NRF_SUCCESS) {
-        LOG_WARNING("%s: Not enough bytes in RNG buffer", __FUNCTION__);
-    }
+    assert(ret == NRF_SUCCESS);
 }
 #endif /* MODULE_NORDIC_SOFTDEVICE_BLE */
