@@ -157,7 +157,7 @@ static void goto_target_state(void)
 {
     go_idle();
 
-    if ((target_state == STATE_RX) && (rx_buf.pkt.hdr.len == 0)) {
+    if ((target_state == STATE_RX)){// && (rx_buf.pkt.hdr.len == 0)) {
         /* set receive buffer and our own address */
         rx_lock = 1;
         NRF_RADIO->PACKETPTR = (uint32_t)(&rx_buf);
