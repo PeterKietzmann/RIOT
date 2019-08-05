@@ -168,6 +168,9 @@ static void goto_target_state(void)
         while (NRF_RADIO->EVENTS_READY == 0) {}
         state = STATE_RX;
     }
+    else {
+        printf("GTS:%i, %i\n",target_state,rx_buf.pkt.hdr.len);
+    }
 
     if (target_state == STATE_OFF) {
         NRF_RADIO->POWER = 0;
@@ -300,6 +303,7 @@ void isr_radio(void)
         NRF_RADIO->EVENTS_END = 0;
         /* did we just send or receive something? */
         if (state == STATE_RX) {
+            // puts("#");
             /* drop packet on invalid CRC */
             if ((NRF_RADIO->CRCSTATUS != 1) || !(nrfmin_dev.event_callback)) {
                 rx_buf.pkt.hdr.len = 0;
@@ -311,8 +315,12 @@ void isr_radio(void)
             }
         }
         else if (state == STATE_TX) {
+            // puts("+");
             goto_target_state();
         }
+    }
+    else {
+        puts("NRF_RADIO->EVENTS_END != 1");
     }
 
     cortexm_isr_end();
@@ -323,7 +331,9 @@ static int nrfmin_send(netdev_t *dev, const iolist_t *iolist)
     (void)dev;
 
     assert(iolist);
+    // puts("SS");
     if (state == STATE_OFF) {
+        puts("state == STATE_OFF");
         return -ENETDOWN;
     }
 
