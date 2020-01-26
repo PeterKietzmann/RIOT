@@ -34,11 +34,11 @@ CFLAGS += -DTHREAD_STACKSIZE_MAIN=\(5*THREAD_STACKSIZE_DEFAULT\)
 USEPKG += relic
 USEMODULE += embunit
 
-# -DWORD=32 : 	Specifies the word width of the target system. This is
+# -DWSIZE=32 : 	Specifies the word width of the target system. This is
 #  				currently not automatically detected so adjusted to your target
 #  				platform.
 
 # The rest of the parameters are configuration parameters for RELIC described in its documentation.
-export RELIC_CONFIG_FLAGS=-DARCH=NONE -DOPSYS=NONE -DQUIET=off -DWORD=32 -DFP_PRIME=255 -DWITH="BN;MD;DV;FP;EP;CP;BC;EC" -DSEED=ZERO
-
+export RELIC_CONFIG_FLAGS=-DTESTS=1 -DBENCH=1 -DARCH=NONE -DOPSYS=NONE -DQUIET=off -DWSIZE=32 -DFP_PRIME=255 -DWITH="BN;MD;DV;FP;EP;CP;BC;EC" -DSEED=ZERO
+# export RELIC_CONFIG_FLAGS=-DARCH=NONE -DOPSYS=NONE -DQUIET=off -DWSIZE=32 -DWITH="ALL" -DSEED=ZERO
 include $(RIOTBASE)/Makefile.include

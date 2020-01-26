@@ -1,6 +1,7 @@
 PKG_NAME=relic
 PKG_URL=https://github.com/relic-toolkit/relic.git
-PKG_VERSION=0b0442a8218df8d309266923f2dd5b9ae3b318ce
+# PKG_VERSION=0b0442a8218df8d309266923f2dd5b9ae3b318ce
+PKG_VERSION=dd3570d3d8de826c1f7f697125cf10edc7954659
 PKG_LICENSE=LGPL-2.1
 
 include $(RIOTBASE)/pkg/pkg.mk
