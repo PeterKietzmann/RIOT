@@ -2,7 +2,10 @@
 APPLICATION = hello-world
 
 # If no BOARD is found in the environment, use this default:
-BOARD ?= native
+BOARD ?= pba-d-01-kw2x
+
+USEMODULE += lib_mmcau
+CFLAGS=-DFREESCALE_MMCAU
 
 # This has to be the absolute path to the RIOT base directory:
 RIOTBASE ?= $(CURDIR)/../..
