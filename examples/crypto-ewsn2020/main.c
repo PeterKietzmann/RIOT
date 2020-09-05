@@ -38,6 +38,10 @@
     gpio_t active_gpio = GPIO_PIN(2,5);
 #endif /* BOARD_PBA_D_01_KW2X */
 
+#ifdef BOARD_SLSTK3402A
+    gpio_t active_gpio = GPIO_PIN(0,0);
+#endif /* BOARD_SLSTK3401A */
+
 int main(void)
 {
     // sha1_test(active_gpio);
