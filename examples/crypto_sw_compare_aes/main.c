@@ -20,7 +20,14 @@
 
 #include <stdio.h>
 #include <string.h>
+
+#if defined(MODE_TIM)
 #include "xtimer.h"
+uint32_t start, stop;
+#elif defined(MODE_GPIO)
+#include "periph/gpio.h"
+#define MODE_GPIO_PIN GPIO_PIN(1, 14)
+#endif
 
 #if TEST_RIOT
 #include "crypto/aes.h"
@@ -54,52 +61,57 @@ static uint8_t TEST_1_INP[] = {
     0xBB, 0x12, 0x67, 0x38, 0xE9, 0x12, 0x54, 0x23
 };
 
-static uint8_t TEST_1_ENC[] = {
-    0xD7, 0x9A, 0x54, 0x0E, 0x61, 0x33, 0x03, 0x72,
-    0x59, 0x0f, 0x87, 0x91, 0xEF, 0xB0, 0xF8, 0x16
-};
+// static uint8_t TEST_1_ENC[] = {
+//     0xD7, 0x9A, 0x54, 0x0E, 0x61, 0x33, 0x03, 0x72,
+//     0x59, 0x0f, 0x87, 0x91, 0xEF, 0xB0, 0xF8, 0x16
+// };
 
-uint32_t start, stop;
-
-void _start_tim(void) {
+static inline void _start_meas(void) {
+#if defined (MODE_TIM)
     start = xtimer_now_usec();
+#elif defined (MODE_GPIO)
+    gpio_set(MODE_GPIO_PIN);
+#endif
 }
 
-void _stop_tim(void) {
+static inline void _stop_meas(void) {
+#if defined (MODE_TIM)
     stop = xtimer_now_usec();
     printf("%"PRIu32"\n", (stop - start));
     start = 0;
+#elif defined (MODE_GPIO)
+    gpio_clear(MODE_GPIO_PIN);
+#endif
 }
 
 int main(void)
 {
     uint8_t data_enc[16]={0};
     uint8_t data_dec[16]={0};
-    (void)TEST_1_ENC;
 
+#if MODE_GPIO
+    gpio_init(MODE_GPIO_PIN, GPIO_OUT);
+#endif
 
 #if TEST_RIOT
     puts("RIOT");
 
     cipher_context_t ctx;
 
-    int err;
-    err = aes_init(&ctx, TEST_1_KEY, sizeof(TEST_1_KEY));
-    if (err <= 0) {
-        puts("error init");
-    }
-    err = aes_encrypt(&ctx, TEST_1_INP, data_enc);
-    if (err < 0) {
-        puts("error enc\n");
-    }
+    _start_meas();
+    aes_init(&ctx, TEST_1_KEY, sizeof(TEST_1_KEY));
+    _stop_meas();
 
-    err = aes_decrypt(&ctx, data_enc, data_dec);
-    if (err < 0) {
-        puts("error dec");
-    }
+    _start_meas();
+    aes_encrypt(&ctx, TEST_1_INP, data_enc);
+    _stop_meas();
+
+    _start_meas();
+    aes_decrypt(&ctx, data_enc, data_dec);
+    _stop_meas();
 
     if (memcmp(TEST_1_INP, data_dec, sizeof(data_dec)) != 0) {
-        printf("Error decrypting\n");
+        printf("ERROR\n");
     }
 #endif
 
@@ -111,36 +123,24 @@ int main(void)
 
     core_init();
 
-    _start_tim();
-	if (cipherInit(&ctx, MODE_ECB, NULL) != TRUE) {
-		puts("0. ERR_NO_VALID");
-	}
-    _stop_tim();
-    _start_tim();
-	if (makeKey2(&key_inst, DIR_ENCRYPT, 8 * sizeof(TEST_1_KEY), (char *)TEST_1_KEY) != TRUE) {
-		puts("makeKey2 enc error");
-	}
-    if (blockEncrypt(&ctx, &key_inst,
-		TEST_1_INP, 8 * sizeof(TEST_1_INP), data_enc) <=0) {
-        puts("1. ERR_NO_VALID");
-    }
-    _stop_tim();
-    _start_tim();
-	if (makeKey2(&key_inst, DIR_DECRYPT, 8 * sizeof(TEST_1_KEY), (char *)TEST_1_KEY) != TRUE) {
-		puts("makeKey2 dec error");
-	}
-    if (blockDecrypt(&ctx, &key_inst,
-        data_enc, 8 * sizeof(data_enc), data_dec) <=0) {
-        puts("2. ERR_NO_VALID");
-    }
-    _stop_tim();
+    _start_meas();
+	cipherInit(&ctx, MODE_ECB, NULL);
+    _stop_meas();
+
+    _start_meas();
+	makeKey2(&key_inst, DIR_ENCRYPT, 8 * sizeof(TEST_1_KEY), (char *)TEST_1_KEY);
+    blockEncrypt(&ctx, &key_inst, TEST_1_INP, 8 * sizeof(TEST_1_INP), data_enc);
+    _stop_meas();
+
+    _start_meas();
+	makeKey2(&key_inst, DIR_DECRYPT, 8 * sizeof(TEST_1_KEY), (char *)TEST_1_KEY);
+    blockDecrypt(&ctx, &key_inst,data_enc, 8 * sizeof(data_enc), data_dec);
+    _stop_meas();
 
     if (memcmp(TEST_1_INP, data_dec, sizeof(data_enc)) != 0) {
-        puts("RELIC AES HASHES MISMATCH");
+        puts("ERROR");
     }
-    // for(unsigned i=0;i<sizeof(data_dec);i++) {
-    //     printf("%02x %02x %02x %02x\n", TEST_1_ENC[i], data_enc[i], TEST_1_INP[i],data_dec[i]);
-    // }
+
     core_clean();
 #endif
 
@@ -149,27 +149,21 @@ int main(void)
 
     struct tc_aes_key_sched_struct ctx;
 
-    // fake. there is no init in this API
-    printf("0\n");
+    _start_meas();
+    _stop_meas();
 
-    _start_tim();
-    if (tc_aes128_set_encrypt_key(&ctx, TEST_1_KEY) != TC_CRYPTO_SUCCESS) {
-        puts("0. ERR_NO_VALID");
-    }
-    if (tc_aes_encrypt(data_enc, TEST_1_INP, &ctx) != TC_CRYPTO_SUCCESS) {
-        puts("1. ERR_NO_VALID");
-    }
-    _stop_tim();
-    _start_tim();
-    if (tc_aes128_set_decrypt_key(&ctx, TEST_1_KEY) != TC_CRYPTO_SUCCESS) {
-        puts("2. ERR_NO_VALID");
-    }
-    if (tc_aes_decrypt(data_dec, data_enc, &ctx) != TC_CRYPTO_SUCCESS) {
-        puts("3. ERR_NO_VALID");
-    }
-    _stop_tim();
+    _start_meas();
+    tc_aes128_set_encrypt_key(&ctx, TEST_1_KEY);
+    tc_aes_encrypt(data_enc, TEST_1_INP, &ctx);
+    _stop_meas();
+
+    _start_meas();
+    tc_aes128_set_decrypt_key(&ctx, TEST_1_KEY);
+    tc_aes_decrypt(data_dec, data_enc, &ctx);
+    _stop_meas();
+
     if (memcmp(TEST_1_INP, data_dec, sizeof(data_dec)) != 0) {
-        puts("TINYCRYPT AES MISMATCH");
+        puts("ERROR");
     }
 #endif
 
@@ -178,28 +172,23 @@ int main(void)
 
     Aes ctx;
 
-    _start_tim();
-    if (wc_AesInit(&ctx, NULL, INVALID_DEVID) != 0) {
-        puts("0. ERR_NO_VALID");
-    }
-    if (wc_AesSetKey(&ctx, TEST_1_KEY, sizeof(TEST_1_KEY), NULL, AES_ENCRYPTION) != 0) {
-        puts("1. ERR_NO_VALID");
-    }
-    _stop_tim();
-    _start_tim();
-    wc_AesEncryptDirect(&ctx, data_enc, TEST_1_INP);
-    _stop_tim();
+    _start_meas();
+    wc_AesInit(&ctx, NULL, INVALID_DEVID);
 
-    _start_tim();
-    if (wc_AesSetKey(&ctx, TEST_1_KEY, sizeof(TEST_1_KEY), NULL, AES_DECRYPTION) != 0) {
-        puts("2. ERR_NO_VALID");
-    }
-    memset(data_dec, 0, sizeof(data_dec));
+    wc_AesSetKey(&ctx, TEST_1_KEY, sizeof(TEST_1_KEY), NULL, AES_ENCRYPTION);
+    _stop_meas();
+
+    _start_meas();
+    wc_AesEncryptDirect(&ctx, data_enc, TEST_1_INP);
+    _stop_meas();
+
+    _start_meas();
+    wc_AesSetKey(&ctx, TEST_1_KEY, sizeof(TEST_1_KEY), NULL, AES_DECRYPTION);
     wc_AesDecryptDirect(&ctx, data_dec, data_enc);
-    _stop_tim();
+    _stop_meas();
 
     if (memcmp(TEST_1_INP, data_dec, sizeof(data_dec)) != 0) {
-        puts("WOLFSSL AES MISMATCH");
+        puts("ERROR");
     }
 #endif
 
@@ -208,17 +197,20 @@ int main(void)
 
     cf_aes_context ctx;
 
-    _start_tim();
+    _start_meas();
     cf_aes_init(&ctx, TEST_1_KEY, sizeof(TEST_1_KEY));
-    _stop_tim();
-    _start_tim();
+    _stop_meas();
+
+    _start_meas();
     cf_aes_encrypt(&ctx, TEST_1_INP, data_enc);
-    _stop_tim();
-    _start_tim();
+    _stop_meas();
+
+    _start_meas();
     cf_aes_decrypt(&ctx, data_enc, data_dec);
-    _stop_tim();
+    _stop_meas();
+
     if (memcmp(TEST_1_INP, data_dec, sizeof(data_dec)) != 0) {
-        puts("CIFRA AES MISMATCH");
+        puts("ERROR");
     }
 #endif
     puts("DONE");

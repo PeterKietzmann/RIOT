@@ -4,7 +4,15 @@ APPLICATION = crypto_sw_compare_aes
 # If no BOARD is found in the environment, use this default:
 BOARD ?= nrf52840dk
 
-USEMODULE += xtimer
+ifeq (1, $(MODE_TIM))
+  CFLAGS += -DMODE_TIM
+  USEMODULE += xtimer
+endif
+
+ifeq (1, $(MODE_GPIO))
+  CFLAGS += -DMODE_GPIO
+  FEATURES_REQUIRED += periph_gpio
+endif
 
 # RIOT
 ifeq (1, $(TEST_RIOT))

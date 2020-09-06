@@ -20,7 +20,14 @@
 
 #include <stdio.h>
 #include <string.h>
+
+#if defined(MODE_TIM)
 #include "xtimer.h"
+uint32_t start, stop;
+#elif defined(MODE_GPIO)
+#include "periph/gpio.h"
+#define MODE_GPIO_PIN GPIO_PIN(1, 14)
+#endif
 
 #if TEST_RIOT
 #include "hashes/sha256.h"
@@ -66,41 +73,51 @@ static uint8_t expected_result_sha256[] = {
         0x9C, 0xB1, 0x45, 0x4D, 0xC2, 0x69, 0x7D, 0x20
     };
 
-uint32_t start, stop;
-
-void _start(void) {
+static inline void _start_meas(void) {
+#if defined (MODE_TIM)
     start = xtimer_now_usec();
+#elif defined (MODE_GPIO)
+    gpio_set(MODE_GPIO_PIN);
+#endif
 }
 
-void _stop(void) {
+static inline void _stop_meas(void) {
+#if defined (MODE_TIM)
     stop = xtimer_now_usec();
     printf("%"PRIu32"\n", (stop - start));
     start = 0;
+#elif defined (MODE_GPIO)
+    gpio_clear(MODE_GPIO_PIN);
+#endif
 }
 
 int main(void)
 {
     uint8_t sha256_hash[32];
 
-    printf("Input length strlen: %i\n", strlen(teststring));
-    printf("Input length sizeof: %i\n", sizeof(teststring));
+#if MODE_GPIO
+    gpio_init(MODE_GPIO_PIN, GPIO_OUT);
+#endif
 
 #if TEST_RIOT
     puts("RIOT");
 
     sha256_context_t ctx;
 
-    _start();
+    _start_meas();
     sha256_init(&ctx);
-    _stop();
-    _start();
+    _stop_meas();
+
+    _start_meas();
     sha2xx_update(&ctx, teststring, strlen(teststring));
-    _stop();
-    _start();
+    _stop_meas();
+
+    _start_meas();
     sha256_final(&ctx, sha256_hash);
-    _stop();
-    if (memcmp(expected_result_sha256, sha256_hash, sizeof(sha256_hash)) != 0) {
-        puts("RIOT SHA256 HASHES MISMATCH");
+    _stop_meas();
+
+    if(memcmp(expected_result_sha256, sha256_hash, sizeof(sha256_hash)) != 0) {
+        puts("ERROR");
     }
 #endif
 
@@ -111,25 +128,23 @@ int main(void)
 
     core_init();
 
-    _start();
-    if (SHA256Reset(&ctx) != shaSuccess) {
-        puts("0. ERR_NO_VALID");
-    }
-    _stop();
-    _start();
-    if (SHA256Input(&ctx, (unsigned char *)teststring, strlen(teststring)) != shaSuccess) {
-        puts("1. ERR_NO_VALID");
-    }
-    _stop();
-    _start();
-    if (SHA256Result(&ctx, sha256_hash) != shaSuccess) {
-        puts("2. ERR_NO_VALID");
-    }
-    _stop();
-    if (memcmp(expected_result_sha256, sha256_hash, sizeof(sha256_hash)) != 0) {
-        puts("RELIC SHA256 HASHES MISMATCH");
-    }
+    _start_meas();
+    SHA256Reset(&ctx);
+    _stop_meas();
+
+    _start_meas();
+    SHA256Input(&ctx, (unsigned char *)teststring, strlen(teststring));
+    _stop_meas();
+
+    _start_meas();
+    SHA256Result(&ctx, sha256_hash);
+    _stop_meas();
+
     core_clean();
+
+    if(memcmp(expected_result_sha256, sha256_hash, sizeof(sha256_hash)) != 0) {
+        puts("ERROR");
+    }
 #endif
 
 #if TEST_TINYCRYPT
@@ -137,23 +152,20 @@ int main(void)
 
     struct tc_sha256_state_struct ctx;
 
-    _start();
-    if (tc_sha256_init(&ctx) != TC_CRYPTO_SUCCESS) {
-        puts("0. ERR_NO_VALID");
-    }
-    _stop();
-    _start();
-    if (tc_sha256_update (&ctx, (const uint8_t *)teststring, strlen(teststring)) != TC_CRYPTO_SUCCESS) {
-        puts("1. ERR_NO_VALID");
-    }
-    _stop();
-    _start();
-    if (tc_sha256_final(sha256_hash, &ctx) != TC_CRYPTO_SUCCESS) {
-        puts("2. ERR_NO_VALID");
-    }
-    _stop();
-    if (memcmp(expected_result_sha256, sha256_hash, sizeof(sha256_hash)) != 0) {
-        puts("TINYCRYPT SHA256 HASHES MISMATCH");
+    _start_meas();
+    tc_sha256_init(&ctx);
+    _stop_meas();
+
+    _start_meas();
+    tc_sha256_update (&ctx, (const uint8_t *)teststring, strlen(teststring));
+    _stop_meas();
+
+    _start_meas();
+    tc_sha256_final(sha256_hash, &ctx);
+    _stop_meas();
+
+    if(memcmp(expected_result_sha256, sha256_hash, sizeof(sha256_hash)) != 0) {
+        puts("ERROR");
     }
 #endif
 
@@ -162,25 +174,22 @@ int main(void)
 
     wc_Sha256 ctx;
 
-    _start();
-    if (wc_InitSha256(&ctx) != 0) {
-        puts("0. ERR_NO_VALID");
-    }
-    _stop();
-    _start();
-    if (wc_Sha256Update(&ctx, (unsigned char *)teststring, strlen(teststring)) != 0) {
-        puts("1. ERR_NO_VALID");
-    }
-    _stop();
-    _start();
-    if (wc_Sha256Final(&ctx, sha256_hash) != 0) {
-        puts("2. ERR_NO_VALID");
-    }
-    _stop();
+    _start_meas();
+    wc_InitSha256(&ctx);
+    _stop_meas();
+
+    _start_meas();
+    wc_Sha256Update(&ctx, (unsigned char *)teststring, strlen(teststring));
+    _stop_meas();
+
+    _start_meas();
+    wc_Sha256Final(&ctx, sha256_hash);
+    _stop_meas();
+
     wc_Sha256Free(&ctx);
 
-    if (memcmp(expected_result_sha256, sha256_hash, sizeof(sha256_hash)) != 0) {
-        puts("WOLFSSL SHA256 HASHES MISMATCH");
+    if(memcmp(expected_result_sha256, sha256_hash, sizeof(sha256_hash)) != 0) {
+        puts("ERROR");
     }
 #endif
 
@@ -189,17 +198,20 @@ int main(void)
 
     cf_sha256_context c_ctx;
 
-    _start();
+    _start_meas();
     cf_sha256_init(&c_ctx);
-    _stop();
-    _start();
+    _stop_meas();
+
+    _start_meas();
     cf_sha256_update(&c_ctx, (unsigned char *)teststring, strlen(teststring));
-    _stop();
-    _start();
+    _stop_meas();
+
+    _start_meas();
     cf_sha256_digest(&c_ctx, sha256_hash);
-    _stop();
-    if (memcmp(expected_result_sha256, sha256_hash, sizeof(sha256_hash)) != 0) {
-        puts("CIFRA SHA256 HASHES MISMATCH");
+    _stop_meas();
+
+    if(memcmp(expected_result_sha256, sha256_hash, sizeof(sha256_hash)) != 0) {
+        puts("ERROR");
     }
 #endif
     puts("DONE");
