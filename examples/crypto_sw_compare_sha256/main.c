@@ -104,18 +104,21 @@ int main(void)
 #if TEST_RIOT
     puts("RIOT");
 
-    sha256_context_t ctx;
+    sha256_context_t ctx_riot;
+#ifndef TEST_MEM
+    printf("sizeof(ctx_riot): %i\n", sizeof(ctx_riot));
+#endif
 
     _start_meas();
-    sha256_init(&ctx);
+    sha256_init(&ctx_riot);
     _stop_meas();
 
     _start_meas();
-    sha2xx_update(&ctx, teststring, strlen(teststring));
+    sha2xx_update(&ctx_riot, teststring, strlen(teststring));
     _stop_meas();
 
     _start_meas();
-    sha256_final(&ctx, sha256_hash);
+    sha256_final(&ctx_riot, sha256_hash);
     _stop_meas();
 
     if(memcmp(expected_result_sha256, sha256_hash, sizeof(sha256_hash)) != 0) {
@@ -126,20 +129,23 @@ int main(void)
 #if TEST_RELIC
     puts("RELIC");
 
-    SHA256Context ctx;
+    SHA256Context ctx_relic;
+#ifndef TEST_MEM
+    printf("sizeof(ctx_relic): %i\n", sizeof(ctx_relic));
+#endif
 
     core_init();
 
     _start_meas();
-    SHA256Reset(&ctx);
+    SHA256Reset(&ctx_relic);
     _stop_meas();
 
     _start_meas();
-    SHA256Input(&ctx, (unsigned char *)teststring, strlen(teststring));
+    SHA256Input(&ctx_relic, (unsigned char *)teststring, strlen(teststring));
     _stop_meas();
 
     _start_meas();
-    SHA256Result(&ctx, sha256_hash);
+    SHA256Result(&ctx_relic, sha256_hash);
     _stop_meas();
 
     core_clean();
@@ -152,18 +158,21 @@ int main(void)
 #if TEST_TINYCRYPT
     puts("TINYCRYPT");
 
-    struct tc_sha256_state_struct ctx;
+    struct tc_sha256_state_struct ctx_tinycrypt;
+#ifndef TEST_MEM
+    printf("sizeof(ctx_tinycrypt): %i\n", sizeof(ctx_tinycrypt));
+#endif
 
     _start_meas();
-    tc_sha256_init(&ctx);
+    tc_sha256_init(&ctx_tinycrypt);
     _stop_meas();
 
     _start_meas();
-    tc_sha256_update (&ctx, (const uint8_t *)teststring, strlen(teststring));
+    tc_sha256_update (&ctx_tinycrypt, (const uint8_t *)teststring, strlen(teststring));
     _stop_meas();
 
     _start_meas();
-    tc_sha256_final(sha256_hash, &ctx);
+    tc_sha256_final(sha256_hash, &ctx_tinycrypt);
     _stop_meas();
 
     if(memcmp(expected_result_sha256, sha256_hash, sizeof(sha256_hash)) != 0) {
@@ -174,21 +183,24 @@ int main(void)
 #if TEST_WOLFSSL
     puts("WOLFSSL");
 
-    wc_Sha256 ctx;
+    wc_Sha256 ctx_wolfssl;
+#ifndef TEST_MEM
+    printf("sizeof(ctx_wolfssl): %i\n", sizeof(ctx_wolfssl));
+#endif
 
     _start_meas();
-    wc_InitSha256(&ctx);
+    wc_InitSha256(&ctx_wolfssl);
     _stop_meas();
 
     _start_meas();
-    wc_Sha256Update(&ctx, (unsigned char *)teststring, strlen(teststring));
+    wc_Sha256Update(&ctx_wolfssl, (unsigned char *)teststring, strlen(teststring));
     _stop_meas();
 
     _start_meas();
-    wc_Sha256Final(&ctx, sha256_hash);
+    wc_Sha256Final(&ctx_wolfssl, sha256_hash);
     _stop_meas();
 
-    wc_Sha256Free(&ctx);
+    wc_Sha256Free(&ctx_wolfssl);
 
     if(memcmp(expected_result_sha256, sha256_hash, sizeof(sha256_hash)) != 0) {
         puts("ERROR");
@@ -198,18 +210,21 @@ int main(void)
 #if TEST_CIFRA
     puts("CIFRA");
 
-    cf_sha256_context c_ctx;
+    cf_sha256_context ctx_cifra;
+#ifndef TEST_MEM
+    printf("sizeof(ctx_cifra): %i\n", sizeof(ctx_cifra));
+#endif
 
     _start_meas();
-    cf_sha256_init(&c_ctx);
+    cf_sha256_init(&ctx_cifra);
     _stop_meas();
 
     _start_meas();
-    cf_sha256_update(&c_ctx, (unsigned char *)teststring, strlen(teststring));
+    cf_sha256_update(&ctx_cifra, (unsigned char *)teststring, strlen(teststring));
     _stop_meas();
 
     _start_meas();
-    cf_sha256_digest(&c_ctx, sha256_hash);
+    cf_sha256_digest(&ctx_cifra, sha256_hash);
     _stop_meas();
 
     if(memcmp(expected_result_sha256, sha256_hash, sizeof(sha256_hash)) != 0) {
