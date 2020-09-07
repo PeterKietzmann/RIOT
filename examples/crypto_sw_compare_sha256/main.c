@@ -26,7 +26,8 @@
 uint32_t start, stop;
 #elif defined(MODE_GPIO)
 #include "periph/gpio.h"
-#define MODE_GPIO_PIN GPIO_PIN(1, 14)
+#define MODE_GPIO_PIN GPIO_PIN(1, 7)
+// gpio_t gpio_aes_key = GPIO_PIN(1, 8);
 #endif
 
 #if TEST_RIOT
@@ -97,6 +98,7 @@ int main(void)
 
 #if MODE_GPIO
     gpio_init(MODE_GPIO_PIN, GPIO_OUT);
+    gpio_clear(MODE_GPIO_PIN);
 #endif
 
 #if TEST_RIOT
