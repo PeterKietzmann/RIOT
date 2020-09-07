@@ -4,6 +4,11 @@ APPLICATION = crypto_sw_compare_aes
 # If no BOARD is found in the environment, use this default:
 BOARD ?= nrf52840dk
 
+ifeq (1, $(MODE_STACK))
+  CFLAGS += -DMODE_STACK
+  USEMODULE += ps
+endif
+
 ifeq (1, $(MODE_TIM))
   CFLAGS += -DMODE_TIM
   USEMODULE += xtimer

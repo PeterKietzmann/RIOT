@@ -30,6 +30,10 @@ uint32_t start, stop;
 // gpio_t gpio_aes_key = GPIO_PIN(1, 8);
 #endif
 
+#if MODE_STACK
+#include "ps.h"
+#endif
+
 #if TEST_RIOT
 #include "crypto/aes.h"
 #endif
@@ -83,6 +87,9 @@ static inline void _stop_meas(void) {
 #elif defined (MODE_GPIO)
     gpio_clear(MODE_GPIO_PIN);
 #endif
+#if MODE_STACK
+    ps();
+#endif
 }
 
 int main(void)
@@ -99,7 +106,7 @@ int main(void)
     puts("RIOT");
 
     cipher_context_t ctx_riot;
-#ifndef TEST_MEM
+#ifdef TEST_TIM
     printf("sizeof(ctx_riot): %i\n", sizeof(ctx_riot));
 #endif
 
@@ -126,7 +133,7 @@ int main(void)
     cipherInstance ctx_relic;
     keyInstance key_inst;
 
-#ifndef TEST_MEM
+#ifdef TEST_TIM
     printf("sizeof(ctx_relic): %i\n", sizeof(ctx_relic));
     printf("sizeof(key_inst): %i\n", sizeof(key_inst));
 #endif
@@ -158,7 +165,7 @@ int main(void)
     puts("TINYCRYPT");
 
     struct tc_aes_key_sched_struct ctx_tinycrypt;
-#ifndef TEST_MEM
+#ifdef TEST_TIM
     printf("sizeof(ctx_tinycrypt): %i\n", sizeof(ctx_tinycrypt));
 #endif
 
@@ -185,7 +192,7 @@ int main(void)
 
     Aes ctx_wolfssl;
 
-#ifndef TEST_MEM
+#ifdef TEST_TIM
     printf("sizeof(ctx_wolfssl): %i\n", sizeof(ctx_wolfssl));
 #endif
 
@@ -214,7 +221,7 @@ int main(void)
 
     cf_aes_context ctx_cifra;
 
-#ifndef TEST_MEM
+#ifdef TEST_TIM
     printf("sizeof(ctx_cifra): %i\n", sizeof(ctx_cifra));
 #endif
 
