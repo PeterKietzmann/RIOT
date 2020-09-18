@@ -23,11 +23,77 @@
 #include <string.h>
 #include <stdint.h>
 
+#include "kernel_defines.h"
+#include "periph/gpio.h"
+
 #include "hashes/sha256.h"
 #include "atca.h"
 #include "atca_params.h"
 
 #define SHA256_HASH_SIZE (32)
+
+void atecc_wake(void)
+{
+    ATCAIfaceCfg *cfg = (ATCAIfaceCfg *)&atca_params[I2C_DEV(0)];
+    uint8_t data[4] = { 0 };
+
+#if IS_USED(MODULE_PERIPH_I2C_RECONFIGURE)
+    /* switch I2C peripheral to GPIO function */
+    i2c_deinit_pins(cfg->atcai2c.bus);
+    gpio_init(i2c_pin_sda(cfg->atcai2c.bus), GPIO_OUT);
+
+    /* send wake pulse of 100us (t_WOL) */
+    gpio_clear(i2c_pin_sda(cfg->atcai2c.bus));
+    atca_delay_us(100);
+
+    /* reinit I2C peripheral */
+    i2c_init_pins(cfg->atcai2c.bus);
+#else
+    /* send wake pulse by sending byte 0x00 */
+    /* this requires the I2C clock to be 100kHz at a max */
+    i2c_acquire(cfg->atcai2c.bus);
+    i2c_write_byte(cfg->atcai2c.bus, ATCA_WAKE_ADDR, data[0], 0);
+    i2c_release(cfg->atcai2c.bus);
+#endif
+
+    atca_delay_us(cfg->wake_delay);
+
+    uint8_t retries = cfg->rx_retries;
+    int status = -1;
+
+    i2c_acquire(cfg->atcai2c.bus);
+    while (retries-- > 0 && status != 0) {
+        status = i2c_read_bytes(cfg->atcai2c.bus,
+                                (cfg->atcai2c.slave_address >> 1),
+                                &data[0], 4, 0);
+    }
+    i2c_release(cfg->atcai2c.bus);
+
+    if (status != ATCA_SUCCESS) {
+        printf("Communication with device failed\n");
+        return;
+    }
+
+    if (hal_check_wake(data, 4)) {
+        printf("Wake up failed\n");
+    }
+}
+
+void atecc_idle(void)
+{
+    ATCAIfaceCfg *cfg = (ATCAIfaceCfg *)&atca_params[I2C_DEV(0)];
+    i2c_acquire(cfg->atcai2c.bus);
+    i2c_write_byte(cfg->atcai2c.bus, (cfg->atcai2c.slave_address >> 1), ATCA_IDLE_ADDR, 0);
+    i2c_release(cfg->atcai2c.bus);
+}
+
+void atecc_sleep(void)
+{
+    ATCAIfaceCfg *cfg = (ATCAIfaceCfg *)&atca_params[I2C_DEV(0)];
+    i2c_acquire(cfg->atcai2c.bus);
+    i2c_write_byte(cfg->atcai2c.bus, (cfg->atcai2c.slave_address >> 1), ATCA_SLEEP_ADDR, 0);
+    i2c_release(cfg->atcai2c.bus);
+}
 
 /**
  * Function to call RIOT software implementation of SHA-256
@@ -50,8 +116,10 @@ static int test_riot_sha256(uint8_t *teststring, uint16_t len,
 static int test_atca_sha(uint8_t *teststring, uint16_t len, uint8_t *expected,
                          uint8_t *result)
 {
+    atecc_wake();
     atcab_sha_start();
     atcab_sha_end(result, len, teststring);
+    atecc_sleep();
     return memcmp(expected, result, SHA256_HASH_SIZE);
 }
 
