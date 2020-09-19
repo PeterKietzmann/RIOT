@@ -179,6 +179,8 @@ ATCA_STATUS hal_i2c_wake(ATCAIface iface)
     i2c_release(cfg->atcai2c.bus);
 
     if (status != ATCA_SUCCESS) {
+        printf("Line: %d\n", __LINE__);
+
         return ATCA_COMM_FAIL;
     }
 
@@ -229,4 +231,22 @@ ATCA_STATUS hal_i2c_discover_devices(int bus_num, ATCAIfaceCfg *cfg, int *found)
     (void)cfg;
     (void)found;
     return ATCA_UNIMPLEMENTED;
+}
+
+void atecc_wake(void)
+{
+    ATCAIface iface = newATCAIface((ATCAIfaceCfg*)&atca_params[I2C_DEV(0)]);
+    hal_i2c_wake(iface);
+}
+
+void atecc_idle(void)
+{
+    ATCAIface iface = newATCAIface((ATCAIfaceCfg*)&atca_params[I2C_DEV(0)]);
+    hal_i2c_idle(iface);
+}
+
+void atecc_sleep(void)
+{
+    ATCAIface iface = newATCAIface((ATCAIfaceCfg*)&atca_params[I2C_DEV(0)]);
+    hal_i2c_sleep(iface);
 }
